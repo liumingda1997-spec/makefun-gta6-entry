@@ -3,17 +3,35 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Block Dodger</title>
+<title>PALM HEAT — Solano City</title>
 <style>
-  html, body { margin: 0; height: 100%; overflow: hidden; background: #11141b; }
-  #game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
-  /* Read aloud, never shown: the status line screen readers announce. */
-  #status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #f5b778; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+  #game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+  #hud { position: fixed; inset: 0; z-index: 2; color: #fff4dc; pointer-events: none; text-shadow: 0 2px 8px #1b2527a8; }
+  .top { display: flex; justify-content: space-between; align-items: flex-start; padding: 24px 30px; }
+  .brand { font-size: 23px; font-weight: 950; letter-spacing: .13em; color: #fff0cf; }
+  .brand small { display: block; padding-top: 3px; font-size: 9px; letter-spacing: .3em; opacity: .8; }
+  .stats { display: flex; align-items: center; gap: 22px; font-size: 17px; font-weight: 750; }
+  .health { display: inline-block; width: 130px; height: 11px; border: 1px solid #fff7; border-radius: 10px; overflow: hidden; }
+  .health i { display: block; width: 84%; height: 100%; background: linear-gradient(90deg,#e25a3d,#ffc36f); }
+  .stars { color: #ffd36f; letter-spacing: 2px; }
+  .hint { position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%); padding: 10px 16px; border: 1px solid #fff4; border-radius: 5px; background: #1726298c; font-size: 12px; letter-spacing: .04em; white-space: nowrap; }
+  #map { position: absolute; right: 26px; bottom: 26px; width: 180px; height: 180px; border: 2px solid #f5dfb8; border-radius: 50%; box-shadow: 0 4px 22px #17262988; }
+  #start { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: auto; background: linear-gradient(90deg,#101c2299,#101c2222 65%,#101c2255); }
+  #start.hidden { display: none; }
+  .start-card { margin-right: auto; margin-left: min(13vw, 180px); max-width: 500px; }
+  .eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .35em; color: #f8c67d; }
+  h1 { margin: 12px 0 0; color: #fff2d2; font-size: clamp(64px, 10vw, 132px); line-height: .88; letter-spacing: -.075em; font-style: italic; text-shadow: 0 6px 30px #122126aa; }
+  .start-card p { margin: 25px 0 28px; color: #f8e5c2; font-size: 18px; line-height: 1.65; }
+  button { pointer-events: auto; border: 0; border-radius: 2px; padding: 15px 24px; color: #273033; background: #ffc978; font-weight: 900; letter-spacing: .16em; cursor: pointer; box-shadow: 0 5px 18px #17262966; }
+  button:hover { background: #ffe0a6; transform: translateY(-1px); }
+  @media(max-width: 650px) { .top { padding: 16px; } .stats { gap: 9px; font-size: 13px; } .health { width: 70px; } #map { width: 132px; height: 132px; right: 14px; bottom: 14px; } .start-card { margin: 0 28px; } }
 </style>
 </head>
 <body>
-<canvas id="game" aria-label="Block Dodger: move the paddle left and right to dodge falling blocks and catch coins"></canvas>
-<p id="status" role="status" aria-live="polite"></p>
+<canvas id="game" aria-label="PALM HEAT, an open-world crime game set in Solano City"></canvas>
+<script src="./vendor/three.min.js"></script>
 <script type="module" src="./src/main.js"></script>
 </body>
 </html>
