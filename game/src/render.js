@@ -12,22 +12,26 @@ function windowTexture(seed) {
 export function createRenderer(canvas, city) {
   const THREE = window.THREE;
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(PALETTE.sky);
-  scene.fog = new THREE.Fog(PALETTE.sky, 95, 350);
+  scene.background = new THREE.Color(0x78c8f1);
+  scene.fog = new THREE.Fog(0xc9b18f, 260, 850);
   const camera = new THREE.PerspectiveCamera(62, 1, 0.1, 700);
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.outputEncoding = THREE.sRGBEncoding; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.18;
   scene.add(new THREE.HemisphereLight(0xffe8c2, 0x50615a, 1.3));
-  const sun = new THREE.DirectionalLight(0xffc17c, 2.1); sun.position.set(-70, 120, 60); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); scene.add(sun);
+  const sun = new THREE.DirectionalLight(0xffd09a, 2.8); sun.position.set(-70, 120, 60); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.camera.left=-110; sun.shadow.camera.right=110; sun.shadow.camera.top=110; sun.shadow.camera.bottom=-110; sun.shadow.bias=-0.00025; sun.shadow.radius=3; scene.add(sun);
   const mat = (color, roughness = 0.9, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness, ...extra });
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(city.span + 200, city.span + 200), mat(PALETTE.ground)); ground.rotation.x = -Math.PI / 2; ground.position.y = -0.06; ground.receiveShadow = true; scene.add(ground);
   const roadMat = mat(PALETTE.road); const sidewalkMat = mat(PALETTE.sidewalk);
   for (const road of city.roads) {
-    const asphalt = new THREE.Mesh(new THREE.BoxGeometry(road.w, 0.08, road.d), roadMat); asphalt.position.set(road.x, 0, road.z); asphalt.receiveShadow = true; scene.add(asphalt);
     const sw = road.w + 4, sd = road.d + 4;
-    const curb = new THREE.Mesh(new THREE.BoxGeometry(sw, 0.12, sd), sidewalkMat); curb.position.set(road.x, -0.09, road.z); scene.add(curb); scene.add(asphalt);
+    const curb = new THREE.Mesh(new THREE.BoxGeometry(sw, 0.12, sd), sidewalkMat); curb.position.set(road.x, -0.09, road.z); curb.receiveShadow=true; scene.add(curb);
+    const asphalt = new THREE.Mesh(new THREE.BoxGeometry(road.w, 0.08, road.d), roadMat); asphalt.position.set(road.x, 0, road.z); asphalt.receiveShadow = true; scene.add(asphalt);
+    const vertical = road.w < road.d;
+    const dashGeo = new THREE.BoxGeometry(vertical ? 0.12 : 5, 0.025, vertical ? 5 : 0.12);
+    for(let p=-road.d/2+3; p<road.d/2-2; p+=10){ const dash=new THREE.Mesh(dashGeo,mat(0xf3dfad,0.85)); dash.position.set(road.x+(vertical?0:p),0.055,road.z+(vertical?p:0));scene.add(dash); }
+    if(vertical){const crossMat=mat(0xe9e5d9,.9);for(let crossing=-city.span/2;crossing<=city.span/2;crossing+=42)for(const side of [-1,1])for(let stripe=0;stripe<5;stripe++){const bar=new THREE.Mesh(new THREE.BoxGeometry(road.w-1,.028,.28),crossMat);bar.position.set(road.x,.058,crossing+side*(4.8+stripe*.58));scene.add(bar);}}
   }
   const buildingMeshes = [];
   for (const b of city.buildings) {
@@ -38,8 +42,8 @@ export function createRenderer(canvas, city) {
   }
   for (const prop of city.props) {
     if (prop.type === 'palm') {
-      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.28, 5.5, 6), mat(0x85603c)); trunk.position.set(prop.x, 2.75, prop.z); trunk.castShadow = true; scene.add(trunk);
-      for (let i = 0; i < 7; i += 1) { const leaf = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.16, 3.8), mat(0x356e48)); const a = i * Math.PI * 2 / 7; leaf.position.set(prop.x + Math.sin(a) * 1.4, 5.35, prop.z + Math.cos(a) * 1.4); leaf.rotation.y = a; leaf.rotation.x = -0.22; scene.add(leaf); }
+      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.28, 5.5, 6), mat(0x85603c)); trunk.position.set(prop.x, 2.75, prop.z); trunk.castShadow = true; trunk.receiveShadow=true; scene.add(trunk);
+      for (let i = 0; i < 7; i += 1) { const leaf = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.16, 3.8), mat(0x356e48)); const a = i * Math.PI * 2 / 7; leaf.position.set(prop.x + Math.sin(a) * 1.4, 5.35, prop.z + Math.cos(a) * 1.4); leaf.rotation.y = a; leaf.rotation.x = -0.22; leaf.castShadow=true; scene.add(leaf); }
     } else {
       const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.13, 5, 6), mat(0x394346)); pole.position.set(prop.x, 2.5, prop.z); scene.add(pole);
       const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.28, 8, 6), new THREE.MeshBasicMaterial({ color: 0xffd58a })); bulb.position.set(prop.x, 5.1, prop.z); scene.add(bulb);
@@ -47,5 +51,5 @@ export function createRenderer(canvas, city) {
   }
   function resize() { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
   window.addEventListener('resize', resize); resize();
-  return { scene, camera, renderer, buildingMeshes, render() { renderer.render(scene, camera); } };
+  return { scene, camera, renderer, buildingMeshes, updateShadows(target) { sun.position.set(target.x-70,120,target.z+60); sun.target.position.set(target.x,0,target.z); sun.target.updateMatrixWorld(); }, render() { renderer.render(scene, camera); } };
 }

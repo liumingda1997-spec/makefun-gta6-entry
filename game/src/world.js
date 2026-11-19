@@ -16,7 +16,7 @@ export function createWorld(random) {
       const h = 5 + random() * 22;
       const px = bx + 4 + random() * (CITY.blockSize - w - 8);
       const pz = bz + 4 + random() * (CITY.blockSize - d - 8);
-      buildings.push({ x: px + w / 2, z: pz + d / 2, w, d, h, color: [0xd8a77b, 0xd1c3a5, 0xb9755b, 0x8caaa4, 0xe2c99a][Math.floor(random() * 5)], seed: random() });
+      buildings.push({ x: px + w / 2, z: pz + d / 2, w, d, h, color: [0xc76545, 0x398b83, 0xd2ae75, 0xe98265, 0xf0e8d6, 0x718c91, 0xb99468][Math.floor(random() * 7)], seed: random() });
     }
     for (let n = 0; n < 4; n += 1) {
       const offset = n < 2 ? -CITY.blockSize / 2 + 3 : CITY.blockSize / 2 - 3;

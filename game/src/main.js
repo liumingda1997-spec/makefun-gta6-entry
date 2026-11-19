@@ -57,7 +57,8 @@ if (shot) {
   const state = configureShot(shot, player, traffic, parkedCars, renderer.camera);
   if (state.reduceFog) renderer.scene.fog = new THREE.Fog(0xf5b778, 500, 1100);
   if (shot === 'start') { player.position.set(0,0,12); renderer.camera.position.set(0,24,78); renderer.camera.lookAt(0,5,-55); }
-  if (shot === 'chase') { wanted=3; hud.setWanted(wanted); traffic.slice(0,2).forEach((t,i)=>{ const u=createPoliceCar(THREE, i?3:-3, 18+i*7); u.mesh.rotation.y=0; police.push(u);renderer.scene.add(u.mesh); }); }
+  if (shot === 'chase') { wanted=3; hud.setWanted(wanted); traffic.slice(0,2).forEach((t,i)=>{ const u=createPoliceCar(THREE, i?4:-4, 13+i*5); u.mesh.rotation.y=i?-.18:.18;u.siren.children.forEach(l=>l.visible=true);police.push(u);renderer.scene.add(u.mesh); }); }
+  if (shot === 'play') { if(pedestrians[0]) pedestrians[0].position.set(0,0,1.3); if(pedestrians[1]) pedestrians[1].position.set(15,0,18); hud.setObjective('MISSION · FIND MARISOL'); }
   title = !state.started;
   hud.setPlaying(state.started);
 }
@@ -81,6 +82,7 @@ function enterExitCar() {
   }
 }
 function updateCamera(look) {
+  if (shot === 'chase') return;
   if (shot === 'end' || shot === 'start') return;
   yaw -= look.x * 0.003;
   pitch = Math.max(-0.25, Math.min(0.65, pitch + look.y * 0.002));
@@ -121,6 +123,7 @@ function tick(dt) {
 }
 function render() {
   updateCamera({ x: 0, y: 0 });
+  renderer.updateShadows(shot === 'chase' ? player.position : (enteredCar || player).position);
   renderer.render();
   hud.update(player, traffic, enteredCar, police, updateMarker());
   frameCount += 1;

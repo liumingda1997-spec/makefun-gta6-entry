@@ -1,4 +1,4 @@
-const COLORS = [0xd94734, 0x2b6684, 0xe6c84a, 0xeeeeea, 0x4e9a66, 0x363843];
+const COLORS = [0xe33d31, 0x087f91, 0xf0bd28, 0xe9e6dc, 0x28965c, 0x583f9e, 0xed7134, 0x263947];
 
 export function createCar(THREE, color, x, z, heading = 0) {
   const car = new THREE.Group();
@@ -9,9 +9,18 @@ export function createCar(THREE, color, x, z, heading = 0) {
   car.add(body);
   const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.65, 0.8, 2), new THREE.MeshStandardMaterial({ color: 0x9bc3c7, roughness: 0.28, metalness: 0.18 }));
   cabin.position.set(0, 1.38, -0.15);
+  cabin.material.color.setHex(0x263c46);
   car.add(cabin);
   const tires = new THREE.Mesh(new THREE.BoxGeometry(2.28, 0.42, 0.72), new THREE.MeshStandardMaterial({ color: 0x202326 }));
   for (const zoff of [-1.3, 1.3]) { const wheel = tires.clone(); wheel.position.set(0, 0.34, zoff); car.add(wheel); }
+  const addLamp=(x,y,z,color)=>{const lamp=new THREE.Mesh(new THREE.BoxGeometry(.34,.16,.08),new THREE.MeshStandardMaterial({color,emissive:color,emissiveIntensity:1.2}));lamp.position.set(x,y,z);car.add(lamp);};
+  addLamp(-.68,.62,-2.02,0xffe6a2); addLamp(.68,.62,-2.02,0xffe6a2);
+  addLamp(-.72,.62,2.02,0xff352d); addLamp(.72,.62,2.02,0xff352d);
+  const variant = Math.abs(Math.floor((x * 13 + z * 7 + color) % 4));
+  if (variant === 1) { cabin.scale.set(1.02,.86,.78); cabin.position.z=-.34; }
+  if (variant === 2) { cabin.scale.set(1.08,1.25,1.12); cabin.position.set(0,1.52,-.05); }
+  if (variant === 3) { const bed=new THREE.Mesh(new THREE.BoxGeometry(1.8,.36,1.12),new THREE.MeshStandardMaterial({color})); bed.position.set(0,1.05,1.12);car.add(bed); }
+  car.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
   car.userData.speed = 0;
   return car;
 }

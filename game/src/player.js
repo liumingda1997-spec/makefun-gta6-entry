@@ -12,6 +12,7 @@ export function createPlayer(THREE, x, z) {
   box(0.42, 0.42, 0.42, 1.72, skin);
   box(0.18, 0.68, 0.2, 0.98, shirt, -0.48);
   box(0.18, 0.68, 0.2, 0.98, shirt, 0.48);
+  group.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
   group.userData.velocity = 0;
   group.userData.radius = PLAYER.radius;
   return group;
